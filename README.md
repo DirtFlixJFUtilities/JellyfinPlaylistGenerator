@@ -36,3 +36,7 @@ This application allows you to create custom playlists from your Jellyfin media 
                             <li>To make the page "remember" server address and API key, replace the occurances of "http://192.168.1.10:8096" with your server then modify this line<br>"input type="password" class="form-control" id="apiKey" placeholder="Enter your Jellyfin API key">" to this<br>"input type="password" class="form-control" id="apiKey" placeholder="<b>your API key</b>" <b>value="your API key"</b>>" in index.html</li>
                         </ul>
                         <p><strong>Note:</strong> This application requires a valid Jellyfin server with API access enabled. Make sure your server URL and API key are correct before attempting to fetch items.</p>
+
+<image src="https://github.com/DirtFlixJFUtilities/JellyfinPlaylistGenerator/blob/main/JFPlaylistGenerator3.jpg"><br>
+<img src="https://github.com/DirtFlixJFUtilities/JellyfinPlaylistGenerator/blob/main/JFPlaylistGeneratorDarkTheme.jpg">
+
