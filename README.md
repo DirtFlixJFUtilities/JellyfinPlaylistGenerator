@@ -1,3 +1,5 @@
+The quick and dirty overview: I haven't touched a line of code since asp.net and do not have time to get back up to speed. A series of plugins created by IAmParadox27 particularly the media bar, https://github.com/IAmParadox27/jellyfin-plugin-media-bar, coupled with the current implementation of playlist creation in Jellyfin inspired some action. This was written by qwen3-coder-30b-a3b-instruct in VS Code with Kilo Code. Even being quite out of the loop, I can see the code is sloppy and not well optimized. All that said, it works. And seems to work pretty well for what it does. It was like herding cats to get him (qwen & kilo) to write some of the functionality. It was just a project for personal use that turned out... acceptable. It is provided as-is and I do not forsee doing any updates beyond some minor polishing. I'm getting some use out of it and thought someone else might be able to also.
+
 This application allows you to create custom playlists from your Jellyfin media library with fairly robust filtering options. It is stand-alone, runs in a browser and does not require any server architecture for maximum compatability.
 
 <h6>Getting Started</h6>
