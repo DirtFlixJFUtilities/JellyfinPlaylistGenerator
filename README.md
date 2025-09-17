@@ -2,6 +2,8 @@ The quick and dirty overview: I haven't touched a line of code since asp.net and
 
 Even being quite out of the loop, I can see the code is less than optimal to be extremely polite. There are some regex genre filters that were not removed once Books were dropped from the scope which can probably be commented out without breaking the page among quite a few other issues. All that said, the generator works. And seems to work pretty well for what it does. It was like herding cats to get him (qwen & kilo) to write some of the functionality. This was just a project for personal use that turned out... acceptable. It is provided as-is and I do not forsee doing any updates beyond some minor polishing and possibly tackling music playlists. I'm getting some use out of it and thought someone else might be able to also.
 
+<image src="https://github.com/DirtFlixJFUtilities/JellyfinPlaylistGenerator/blob/main/JFPlaylistGenerator1.jpg">
+
 This application allows you to create custom playlists from your Jellyfin media library with fairly robust filtering options. It is stand-alone, runs in a browser and does not require any server architecture for maximum compatability and simplicity.
 
 <h6>Getting Started</h6>
