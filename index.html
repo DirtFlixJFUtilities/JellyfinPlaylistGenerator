@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirtFlix Playlist Generator</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <header class="text-center mb-5">
+            <h1><i class="fas fa-film me-2"></i>DirtFlix Playlist Generator</h1>
+            <p class="lead">Create custom playlists from your Jellyfin library</p>
+           
+        </header>
+        <a href="#" id="helpModalTrigger" class="text-decoration-none"><b>How does this work? Click here for help</b></a><br>
+        <div class="row">
+            
+            <!-- Filter Section -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Options</h5>
+                        
+                         <!-- Theme Toggle Button -->
+            <button id="themeToggle" style="float: right;" class="btn btn-outline-light ms-3" title="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+                    </div>
+                    <div class="card-body">
+                        <!-- Jellyfin Server URL -->
+                        <div class="mb-3">
+                            <label for="serverUrl" class="form-label">Jellyfin Server URL</label>
+                            <input type="text" class="form-control" id="serverUrl" placeholder="http://192.168.1.10:8096" value="http://192.168.1.10:8096">
+                        </div>
+
+                        <!-- API Key -->
+                        <div class="mb-3">
+                            <label for="apiKey" class="form-label">API Key</label>
+                            <input type="password" class="form-control" id="apiKey" placeholder="Enter your Jellyfin API key">
+                        </div>
+
+                        <!-- User Selection -->
+                        <div class="mb-3">
+                            <label for="userSelect" class="form-label">Select User</label>
+                            <select class="form-select" id="userSelect">
+                                <option value="">Select a user...</option>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                            <small class="text-muted">Choose the user account to use for playlist creation</small>
+                        </div>
+
+                        <!-- Item Type Filter -->
+                        <div class="mb-3">
+                            <label class="form-label">Item Type</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="filterMovies" value="Movie" checked>
+                                    <label class="form-check-label" for="filterMovies">Movies</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="filterTV" value="Series" checked>
+                                    <label class="form-check-label" for="filterTV">TV Shows</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="filterMusic" value="Audio">
+                                    <label class="form-check-label" for="filterMusic">Music</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search Term Filter -->
+                        <div class="mb-3">
+                            <label for="searchTerm" class="form-label">Search Term</label>
+                            <input type="text" class="form-control" id="searchTerm" placeholder="Enter search term...">
+                        </div>
+
+                       <!-- Rating Filter -->
+                       <div class="mb-3">
+                           <label for="ratingFilter" class="form-label">Minimum Community Rating</label>
+                           <input type="range" class="form-range" id="ratingFilter" min="0" max="10" step="0.5" value="0">
+                           <div class="d-flex justify-content-between">
+                               <span>0</span>
+                               <span id="ratingValue">5</span>
+                               <span>10</span>
+                           </div>
+                       </div>
+
+                        <!-- Year Range Filter -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="yearFrom" class="form-label">Year From</label>
+                                <input type="number" class="form-control" id="yearFrom" placeholder="1900" min="1900" max="2030">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="yearTo" class="form-label">Year To</label>
+                                <input type="number" class="form-control" id="yearTo" placeholder="2025" min="1900" max="2030">
+                            </div>
+                        </div>
+
+                       <!-- Genre Filter -->
+                       <div class="mb-3 filter-container">
+                           <label for="genreFilter" class="form-label">Genre</label>
+                           <select class="form-select resizable-select" id="genreFilter" multiple>
+                               <!-- Options will be populated by JavaScript -->
+                           </select>
+                           <small class="text-muted">Hold Ctrl/Cmd to select multiple genres</small>
+                       </div>
+
+                        <!-- Studios Filter -->
+                        <div class="mb-3 filter-container">
+                            <label for="studiosFilter" class="form-label">Studios</label>
+                            <select class="form-select resizable-select" id="studiosFilter" multiple>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple studios</small>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <button id="fetchItemsBtn" class="btn btn-primary"><i class="fas fa-search me-2"></i>Fetch Items</button>
+                            <button id="clearAllListsBtn" class="btn btn-outline-danger"><i class="fas fa-trash-alt me-2"></i>Clear All Lists</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="col-lg-8">
+                <!-- Playlist Creation Section -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-music me-2"></i>Create New Playlist</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="playlistName" class="form-label">Playlist Name</label>
+                                <input type="text" class="form-control" id="playlistName" placeholder="My Awesome Playlist">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="playlistDescription" class="form-label">Description</label>
+                                <input type type="text" class="form-control" id="playlistDescription" placeholder="Playlist description">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="mediaTypeSelect" class="form-label">Media Type</label>
+                                <select class="form-select" id="mediaTypeSelect">
+                                <option value="Video" selected>Video</option>
+                                </select>    
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="canEditCheckbox" checked>
+                                    <label class="form-check-label" for="canEditCheckbox">Can Edit</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="isPublicCheckbox">
+                                    <label class="form-check-label" for="isPublicCheckbox">Is Public</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="savePlaylistBtn" class="btn btn-info" disabled><i class="fas fa-save me-2"></i>Save Playlist to Jellyfin</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabbed Interface for Lists -->
+                <ul class="nav nav-tabs mb-3" id="listTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="workingListTab" data-bs-toggle="tab" data-bs-target="#workingListPane" type="button" role="tab">Working List</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="masterListTab" data-bs-toggle="tab" data-bs-target="#masterListPane" type="button" role="tab">Master List</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="listTabsContent">
+                    <!-- Working List Tab -->
+                    <div class="tab-pane fade show active" id="workingListPane" role="tabpanel">
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Working List</h5>
+                                <span id="workingListCount" class="badge bg-light text-dark">0 items</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <p class="mb-0"><strong>Items in Working List:</strong></p>
+                                    <div class="d-flex align-items-center">
+                                        <button id="removeWorkingListSelectedBtn" class="btn btn-danger me-2"><i class="fas fa-trash-alt me-2"></i>Remove Selected</button>
+                                        <button id="conformToGenresBtn" class="btn btn-warning me-2"><i class="fas fa-filter me-2"></i>Conform To Selected Genres</button>
+                                        <button id="sendToMasterListBtn" class="btn btn-success me-2"><i class="fas fa-arrow-right me-2"></i>Send To Master List</button>
+                                        <button id="clearWorkingListBtn" class="btn btn-outline-secondary"><i class="fas fa-trash-alt me-2"></i>Clear Working List</button>
+                                    </div>
+                                </div>
+                                
+                                <div id="workingListContainer">
+                                    <!-- Items will be displayed here -->
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>Your working list is empty</p>
+                                        <p>Use filters and click "Fetch Items" to populate the list</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Master List Tab -->
+                    <div class="tab-pane fade" id="masterListPane" role="tabpanel">
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Master List</h5>
+                                <span id="masterListCount" class="badge bg-light text-dark">0 items</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <p class="mb-0"><strong>Items in Master List:</strong></p>
+                                    <div class="d-flex align-items-center">
+                                        <select id="sortByDropdown" class="form-select form-select-sm me-2" style="width: auto;">
+                                            <option value="none">Sort By</option>
+                                            <option value="alphabetical">Alphabetical</option>
+                                            <option value="releaseDate">Release Date</option>
+                                            <option value="rating">Rating</option>
+                                            <option value="random">Random</option>
+                                        </select>
+                                        <button id="removeSelectedBtn" class="btn btn-danger" disabled><i class="fas fa-trash-alt me-2"></i>Remove Selected</button>
+                                    </div>
+                                </div>
+                                
+                                <div id="masterListContainer">
+                                    <!-- Items will be displayed here -->
+                                    <div class="text-center py-5 text-muted">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>Your master list is empty</p>
+                                        <p>Use filters and click "Fetch Items" to populate the list</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="statusMessages" class="mt-4">
+            <!-- Status messages will appear here -->
+        </div>
+        
+        <!-- Item Detail Modal -->
+        <div class="modal fade" id="itemDetailModal" tabindex="-1" aria-labelledby="itemDetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="itemDetailModalLabel">Item Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img id="detailImage" src="" alt="Item Image" class="img-fluid rounded">
+                            </div>
+                            <div class="col-md-8">
+                                <h5 id="detailTitle"></h5>
+                                <p><strong>Type:</strong> <span id="detailType"></span></p>
+                                <p><strong>Studio:</strong> <span id="detailStudio"></span></p>
+                                <p><strong>Critic Rating:</strong> <span id="detailCriticRating"></span>/10</p>
+                                <p><strong>Community Rating:</strong> <span id="detailCommunityRating"></span>/10</p>
+                                <p><strong>Year:</strong> <span id="detailYear"></span></p>
+                                <div class="mt-3" id="taglineSection" style="display: none;">
+                                    <h6>Tagline</h6>
+                                    <p id="detailTagline"></p>
+                                </div>
+                                <div class="mt-3">
+                                    <h6>Overview</h6>
+                                    <p id="detailOverview"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="helpModalLabel">How This Application Works</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>This application allows you to create custom playlists from your Jellyfin media library with fairly robust filtering options. It is stand-alone, runs in a browser and does not require any server architecture for maximum compatability.</p>
+                        
+                        <h6>Getting Started</h6>
+                        <ol>
+                            <li><strong>Enter Server Details:</strong> Input your Jellyfin server URL and API key in the appropriate fields.<br>
+                                - To get an api key from your Jellyfin server log in as an admin, go to the dashboard then API Keys. Click + to add a key and name it whatever you want. Playlist Generator is logical but anything will work. Paste your server URL and API key in the appropriate fields. Clicking outside the API Key field "submits" the values and initiates Users, Genres and Studios fetches.</li>
+                            <li><strong>Select User:</strong> This is the user you are creating the playlist for.</li>
+                            <li><strong>Select Media Types:</strong> Choose which types of media you want to include (Movies, TV Series, Audio).<br>- Ignore audio for now, this app only supports video currently.</li>
+                            <li><strong>Apply Filters:</strong> Use genre, studio, year, or search term filters to narrow down your selection.<br>- Ctrl + click to select multiple genres.</li>
+                            <li><strong>Fetch Items:</strong> Click "Fetch Items" to retrieve matching items from your Jellyfin server into the Working List.</li>
+                            <li><strong>Browse & Select:</strong> Browse the fetched items and select those you want in your playlist.<br>- Check multiple titles and click delete for quicker removal. For boolean filtering (ex. titles that are action AND adventure AND whatever) select the desired genres then click "Conform To Selected Genres" button. Once you are satisfied with the current list, click "Add To Master List". Rinse and repeat to continue building the Master List.</li>
+                            <li><strong>Review Master List:</strong> This is the list that the Jellyfin playlist will be created with.</li>
+                            <li><strong>Create Playlist:</strong> Give your playlist a name, add a description, and click "Save Playlist" to create it on your Jellyfin server.</li>
+                        </ol>
+
+                        <h6>Features</h6>
+                        <ul>
+                            <li><strong>Item Details:</strong> Click on any item's image to see detailed information in the modal window.</li>
+                            <li><strong>Filtering:</strong> Use dropdowns and input fields to filter items by genre, studio, year range, or search term.</li>
+                            <li><strong>Conform to Genres:</strong> Filter your working list to only include items that contain ALL currently selected genres.</li>
+                            <li><strong>Playlist Management:</strong> Create, view, and manage playlists directly from your Jellyfin server.</li>
+                        </ul>
+
+                        <h6>Tips</h6>
+                        <ul>
+                            <li>Start with broad filters and then narrow them down for better results.</li>
+                            <li>Use the "Conform to Genres" feature to quickly filter items that match all selected genres.</li>
+                            <li>The Master List automagically de-duplicates so you dont have to worry about manually searching the list for duplicate titles.</li>
+                            <li>The sort order of your Master List is the order the titles will appear in the playlist.</li>
+                            <li>Clear lists using the "Clear All Lists" button when you want to start over.</li>
+                            <li>Fetch Items returns 1000 records. If this hammers your machine or is not enough the value can be changed in script.js here "queryParams.append('Limit', '1000'); <i>// Increased titles limit to 1000 items</i>"</li>
+                            <li>To make the page "remember" server address and API key, replace the occurances of "http://192.168.1.10:8096" with your server then modify this line<br>"input type="password" class="form-control" id="apiKey" placeholder="Enter your Jellyfin API key">" to this<br>"input type="password" class="form-control" id="apiKey" placeholder="<b>your API key</b>" <b>value="your API key"</b>>" in index.html</li>
+                            
+                        </ul>
+
+                        <p><strong>Note:</strong> This application requires a valid Jellyfin server with API access enabled. Make sure your server URL and API key are correct before attempting to fetch items.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
